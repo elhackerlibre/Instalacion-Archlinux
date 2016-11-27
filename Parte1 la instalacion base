@@ -1,0 +1,111 @@
+# Establecer distribucion de teclado en español:
+loadkeys la-latin1
+
+# Crear particiones:
+cfdisk
+sda1 = boot, sda2 = /, sda3 = home y sda4 = swap
+
+# Dar formatos a las particiones:
+mkfs -t ext2 /dev/sda1
+mkfs -t ext4 /dev/sda2
+mkfs -t ext4 /dev/sda3
+mkswap /dev/sda4
+
+# Montar memomria SWAP:
+swapon /dev/sda4
+
+# Montar partcion /root:
+mount /dev/sda2 /mnt
+
+# Crear directorios /boot y /home:
+mkdir /mnt/boot
+mkdir /mnt/home
+
+# Montar /directorios /boot y /home:
+mount /dev/sda1 /mnt/boot
+mount /dev/sda3 /mnt/home
+
+# Conectar a wifi:
+wifi-menu
+
+# Comprobar la conexión:
+ping -c 3 8.8.8.8
+
+# Instalar los paquete base:
+pacstrap /mnt base base-devel
+pacstrap /mnt  grub-bios
+pacstrap /mnt  networkmanager
+
+...Opcional si se usa mousepad...
+pacstrap /mnt xf86-input-synaptics
+
+# Generar el archivo fstab:
+genfstab -U -p /mnt >> /mnt/etc/fstab
+
+# Efectuar Chroot y configurar el sistema base:
+arch-chroot /mnt
+
+# Establecer nombre de equipo:
+nano /etc/hostname
+
+# Establecer horario en nuestra zona:
+ln -s /usr/share/zoneinfo/America/Caracas /etc/localtime
+
+# Establecer las preferencias de localización:
+nano /etc/locale.conf
+LANG=es_VE.UTF-8
+
+# Activar nuestra localización:
+nano /etc/locale.gen
+Descomentar es_VE.UTF-8 UTF-8
+
+#  Generar localización:
+locale-gen
+
+# Establecer la distribución de nuestro teclado:
+nano /etc/vconsole.conf
+KEYMAP=la-latin1
+
+# Instalación de Grub:
+grub-install /dev/sda
+
+# Crear el archivo grub.cfg:
+grub-mkconfig -o /boot/grub/grub.cfg
+
+# Generar ramdisk:
+mkinitcpio -p linux
+
+# Establecer contraseña de root:
+passwd
+
+# Cerrar chroot:
+exit
+
+# Desmontar particiones:
+umount /mnt/{boot,home,}
+
+# Reiniciar el sistema:
+reboot
+
+# Ejecutar y activar NetworkManager:
+systemctl start NetworkManager.service
+systemctl enable NetworkManager.service
+
+# crear nuestro usuario con sus respectivos grupos:
+useradd -m -g users -G audio,lp,optical,storage,video,wheel,games,power,scanner -s /bin/bash user
+
+# Colocar contraseña a nuestro usuario:
+passwd user
+
+# Editamos el archivo /etc/sudoers:
+nano /etc/sudoers
+Descomentar: %wheel ALL=(ALL) ALL
+
+# Reiniciar sistema
+reboot
+
+# Para conectarnos a una red inalambrica con Network Manager:
+sudo nmcli dev wifi connect "SSID" password "contraseña"
+
+# Actualizar el sistema:
+sudo pacman -Syu

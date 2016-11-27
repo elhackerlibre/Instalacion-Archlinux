@@ -1,0 +1,37 @@
+# Instalar Xorg y complementos:
+sudo pacman -S xorg-server xorg-xinit xorg-utils xorg-server-utils
+
+# Instalar mesa:
+sudo pacman -S mesa mesa-demos
+
+# Instalar driver de video:
+-- driver propietarios principales --
+sudo pacman -S nvidia nvidia-utils
+
+-- driver propietarios secundarios --
+sudo pacman -S nvidia-304xx
+
+-- driver de código abierto --
+sudo pacman -S xf86-video-nouveau
+
+-- driver ATI --
+sudo pacman -S xf86-video-ati
+
+-- driver INTEL --
+sudo pacman -S xf86-video-intel
+
+-- driver generico vesa --
+sudo pacman -S xf86-video-vesa
+
+-- ver lista de driver de vídeos
+pacman -Ss xf86-video
+------------------------------------------
+
+# Instalar entorno grafico predeterminado:
+sudo pacman -S xorg-twm xorg-xclock xterm
+
+# Iniciar entorno grafico:
+startx
+
+# Salir del entorno grafico
+sudo pkill X
